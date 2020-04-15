@@ -1,9 +1,9 @@
 package sudokusolver
 
 import org.scalatest.FunSuite
-import sudokusolver.Solver.{Coordinate, Square}
+import sudokusolver.Solution.{Coordinate, Square}
 
-class SolverTest extends FunSuite {
+class SolutionTest extends FunSuite {
 
   test("valuesEliminated leaves definite value alone") {
     val square = Set(2)

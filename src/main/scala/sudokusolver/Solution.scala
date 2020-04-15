@@ -2,31 +2,7 @@ package sudokusolver
 
 import scala.annotation.tailrec
 
-object Solver extends App {
-
-  type Coordinate = (Int, Int)
-  type Square = Set[Int]
-  type Grid = Seq[Seq[Square]]
-
-  val givenState = Seq(
-    Seq(0, 0, 8, 2, 0, 6, 1, 0, 9),
-    Seq(1, 0, 0, 0, 3, 8, 0, 0, 0),
-    Seq(0, 0, 6, 0, 0, 0, 3, 2, 0),
-    Seq(0, 0, 0, 5, 7, 9, 8, 0, 2),
-    Seq(2, 8, 0, 4, 0, 3, 0, 6, 5),
-    Seq(5, 0, 7, 8, 6, 2, 0, 0, 0),
-    Seq(0, 6, 5, 0, 0, 0, 9, 0, 0),
-    Seq(0, 0, 0, 6, 8, 0, 0, 0, 3),
-    Seq(7, 0, 3, 9, 0, 1, 2, 0, 0),
-  )
-
-  val grid: Grid =
-    givenState.map {
-      _.map { value =>
-        if (value == 0) (1 to 9).toSet
-        else Set(value)
-      }
-    }
+object Solution {
 
   object Coordinate {
 
@@ -92,7 +68,7 @@ object Solver extends App {
       }
   }
 
-  def pass(grid: Grid): Grid = {
+  def iteration(grid: Grid): Grid = {
     @tailrec
     def go(g: Grid, c: Coordinate): Grid = {
       val gridAfter = Grid.afterReducingSquare(g, c)
@@ -106,14 +82,15 @@ object Solver extends App {
     go(grid, (0, 0))
   }
 
-  def passUntilUnchanging(grid: Grid): Grid = {
+  def untilUnchanging(grid: Grid, f: Grid => Grid): Seq[Grid] = {
     @tailrec
-    def go(h: Grid): Grid = {
-      val n = pass(h)
-      if (n == h) h
-      else go(n)
+    def go(acc: Seq[Grid]): Seq[Grid] = {
+      val g = acc.last
+      val n = f(g)
+      if (n == g) acc
+      else go(acc :+ n)
     }
-    go(grid)
+    go(Seq(grid))
   }
 
   def asString(g: Grid): String = {
@@ -128,8 +105,4 @@ object Solver extends App {
     }
     g.map(asString).mkString("\n")
   }
-
-  println(asString(grid))
-  println
-  println(asString(passUntilUnchanging(grid)))
 }
