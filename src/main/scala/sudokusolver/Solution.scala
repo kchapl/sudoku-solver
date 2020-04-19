@@ -1,6 +1,7 @@
 package sudokusolver
 
 import scala.annotation.tailrec
+import scala.io.Source
 
 object Solution {
 
@@ -105,4 +106,21 @@ object Solution {
     }
     g.map(asString).mkString("\n")
   }
+
+  def parsed(s: String): Seq[Int] =
+    s.split(',').map(_.toInt)
+
+  def parsed(src: Source): Seq[Seq[Int]] =
+    src.getLines.toList.map(parsed)
+
+  def toGrid(src: Source): Grid =
+    parsed(src) map {
+      _ map { value =>
+        if (value == 0) (1 to 9).toSet
+        else Set(value)
+      }
+    }
+
+  def solution(src: Source): Option[Grid] =
+    untilUnchanging(toGrid(src), iteration).lastOption
 }

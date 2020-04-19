@@ -3,6 +3,8 @@ package sudokusolver
 import org.scalatest.FunSuite
 import sudokusolver.Solution.{Coordinate, Square}
 
+import scala.io.Source
+
 class SolutionTest extends FunSuite {
 
   test("valuesEliminated leaves definite value alone") {
@@ -50,5 +52,23 @@ class SolutionTest extends FunSuite {
 
   test("Column range of box is correct") {
     assertResult(3 to 5)(Coordinate.boxColumnRange(0, 3))
+  }
+
+  // https://sudoku.com/easy
+  test("easy1 has a solution") {
+    //val source = Source.fromURL(getClass.getResource("/easy1.csv"))
+    val source = Source.fromFile("src/test/resources/easy1.csv")
+    val maybeGrid = Solution.solution(source)
+    println(Solution.asString(maybeGrid.get))
+    assert(maybeGrid.isDefined)
+  }
+
+  // https://sudoku.com/medium
+  test("medium1 has a solution") {
+    //val source = Source.fromURL(getClass.getResource("/easy1.csv"))
+    val source = Source.fromFile("src/test/resources/medium1.csv")
+    val maybeGrid = Solution.solution(source)
+    println(Solution.asString(maybeGrid.get))
+    assert(maybeGrid.isDefined)
   }
 }
