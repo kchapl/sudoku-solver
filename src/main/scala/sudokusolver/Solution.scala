@@ -41,16 +41,27 @@ object Solution {
 
   object Square {
 
-    def squaresEliminated(square: Square, toEliminate: Set[Square]): Square = {
-      def definiteValue(s: Square): Option[Int] = s.toList match {
-        case head :: Nil => Some(head)
-        case _           => None
-      }
-      valuesEliminated(square, toEliminate.flatMap(definiteValue))
+    def valuesEliminated(square: Square, toEliminate: Set[Square]): Square = {
+      val afterDefinite = definiteValuesEliminated(square, toEliminate)
+      if (afterDefinite.size > 1)
+        sharedValuesEliminated(afterDefinite, toEliminate)
+      else afterDefinite
     }
 
-    def valuesEliminated(square: Square, toEliminate: Set[Int]): Set[Int] =
-      square.diff(toEliminate)
+    private def definiteValuesEliminated(square: Square, toEliminate: Set[Square]): Square = {
+      def definiteValue(s: Square): Option[Int] =
+        s.toList match {
+          case head :: Nil => Some(head)
+          case _           => None
+        }
+      square.diff(toEliminate.flatMap(definiteValue))
+    }
+
+    private def sharedValuesEliminated(square: Square, toEliminate: Set[Square]) = {
+      val diffed = square.diff(toEliminate.flatten)
+      if (diffed.isEmpty) square
+      else diffed
+    }
   }
 
   object Grid {
@@ -61,9 +72,14 @@ object Solution {
           rowSquares.zipWithIndex.map {
             case (square, colIdx) =>
               if (rowIdx == c._1 && colIdx == c._2) {
-                val squaresToCheck =
-                  Coordinate.toCheck(c).map(c => grid(c._1)(c._2))
-                Square.squaresEliminated(grid(c._1)(c._2), squaresToCheck)
+                val valuesInSameRow = Coordinate.inSameRow(c).map(c => grid(c._1)(c._2))
+                val valuesInSameColumn = Coordinate.inSameColumn(c).map(c => grid(c._1)(c._2))
+                val valuesInSameBox = Coordinate.inSameBox(c).map(c => grid(c._1)(c._2))
+                Square.valuesEliminated(
+                  Square
+                    .valuesEliminated(Square.valuesEliminated(grid(c._1)(c._2), valuesInSameRow), valuesInSameColumn),
+                  valuesInSameBox
+                )
               } else square
           }
       }
@@ -121,6 +137,15 @@ object Solution {
       }
     }
 
+  def isSolved(grid: Grid): Boolean =
+    grid forall { row =>
+      row forall { square =>
+        square.size == 1
+      }
+    }
+
   def solution(src: Source): Option[Grid] =
-    untilUnchanging(toGrid(src), iteration).lastOption
+    untilUnchanging(toGrid(src), iteration).lastOption flatMap { state =>
+      Some(state).filter(isSolved)
+    }
 }
