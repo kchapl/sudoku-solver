@@ -67,21 +67,19 @@ object Solution {
   object Grid {
 
     def afterReducingSquare(grid: Grid, c: Coordinate): Grid =
-      grid.zipWithIndex.map {
-        case (rowSquares, rowIdx) =>
-          rowSquares.zipWithIndex.map {
-            case (square, colIdx) =>
-              if (rowIdx == c._1 && colIdx == c._2) {
-                val valuesInSameRow = Coordinate.inSameRow(c).map(c => grid(c._1)(c._2))
-                val valuesInSameColumn = Coordinate.inSameColumn(c).map(c => grid(c._1)(c._2))
-                val valuesInSameBox = Coordinate.inSameBox(c).map(c => grid(c._1)(c._2))
-                Square.valuesEliminated(
-                  Square
-                    .valuesEliminated(Square.valuesEliminated(grid(c._1)(c._2), valuesInSameRow), valuesInSameColumn),
-                  valuesInSameBox
-                )
-              } else square
-          }
+      grid.zipWithIndex.map { case (rowSquares, rowIdx) =>
+        rowSquares.zipWithIndex.map { case (square, colIdx) =>
+          if (rowIdx == c._1 && colIdx == c._2) {
+            val valuesInSameRow = Coordinate.inSameRow(c).map(c => grid(c._1)(c._2))
+            val valuesInSameColumn = Coordinate.inSameColumn(c).map(c => grid(c._1)(c._2))
+            val valuesInSameBox = Coordinate.inSameBox(c).map(c => grid(c._1)(c._2))
+            Square.valuesEliminated(
+              Square
+                .valuesEliminated(Square.valuesEliminated(grid(c._1)(c._2), valuesInSameRow), valuesInSameColumn),
+              valuesInSameBox
+            )
+          } else square
+        }
       }
   }
 
